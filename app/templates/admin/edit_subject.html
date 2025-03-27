@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Edit Subject</h2>
+<form method="POST">
+    <label for="name">Subject Name:</label>
+    <input type="text" name="name" value="{{ subject.name }}" required>
+    
+    <label for="description">Description:</label>
+    <textarea name="description">{{ subject.description }}</textarea>
+
+    <button type="submit">Update</button>
+</form>
+{% endblock %}

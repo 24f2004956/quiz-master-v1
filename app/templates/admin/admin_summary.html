@@ -1,0 +1,248 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Analytics Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <h1 class="h3 mb-0 text-gray-800">Admin Analytics Dashboard</h1>
+                    <a href="{{ url_for('admin.dashboard') }}" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-arrow-left me-1"></i> Back to Admin Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards Row -->
+    <div class="row mb-4">
+        {% if quiz_stats %}
+        {% set total_quizzes = quiz_stats|map(attribute='quiz_count')|sum %}
+        {% set total_attempts = quiz_stats|map(attribute='attempt_count')|sum %}
+        {% set avg_scores = [] %}
+        {% for stat in quiz_stats %}
+        {% if stat.avg_score is not none and stat.avg_score|string != 'nan' and stat.avg_score > 0 %}
+                {% set avg_scores = avg_scores + [stat.avg_score] %}
+            {% endif %}
+        {% endfor %}
+        {% set overall_avg = (avg_scores|sum / avg_scores|length)|round(2) if avg_scores|length > 0 else 0 %}
+        
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Total Subjects
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ quiz_stats|length }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-book fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Total Quizzes
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ total_quizzes }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-question-circle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Total Attempts
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ total_attempts }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-users fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Overall Avg Score
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ overall_avg }}%
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-percent fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Charts Row -->
+    <div class="row mb-4">
+        <div class="col-xl-6 col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Subject-wise Top Scores</h6>
+                    <div class="dropdown no-arrow">
+                        <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink1" data-bs-toggle="dropdown">
+                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-end">
+                            <div class="dropdown-header">Export Options:</div>
+                            <a class="dropdown-item" href="#"><i class="fas fa-file-csv me-1"></i> CSV</a>
+                            <a class="dropdown-item" href="#"><i class="fas fa-file-pdf me-1"></i> PDF</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <img src="data:image/png;base64,{{ top_scores_chart }}" alt="Subject-wise Top Scores" class="img-fluid">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-6 col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Subject-wise User Attempts</h6>
+                    <div class="dropdown no-arrow">
+                        <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink2" data-bs-toggle="dropdown">
+                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-end">
+                            <div class="dropdown-header">Export Options:</div>
+                            <a class="dropdown-item" href="#"><i class="fas fa-file-csv me-1"></i> CSV</a>
+                            <a class="dropdown-item" href="#"><i class="fas fa-file-pdf me-1"></i> PDF</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <img src="data:image/png;base64,{{ attempts_chart }}" alt="Subject-wise User Attempts" class="img-fluid">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Table -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold" style="color: #acfaf6;">Subject Performance Analytics</h6>
+                    <div class="dropdown no-arrow">
+                        <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink3" data-bs-toggle="dropdown">
+                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-end">
+                            <div class="dropdown-header">Export Options:</div>
+                            <a class="dropdown-item" href="#"><i class="fas fa-file-csv me-1"></i> Export CSV</a>
+                            <a class="dropdown-item" href="#"><i class="fas fa-file-excel me-1"></i> Export Excel</a>
+                            <a class="dropdown-item" href="#"><i class="fas fa-print me-1"></i> Print</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover" id="statsTable" width="100%" cellspacing="0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Subject</th>
+                                    <th>Total Quizzes</th>
+                                    <th>Total Attempts</th>
+                                    <th>Average Score</th>
+                                    <th>Engagement</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for stat in quiz_stats %}
+                                <tr>
+                                    <td><strong>{{ stat.subject_name }}</strong></td>
+                                    <td>{{ stat.quiz_count }}</td>
+                                    <td>{{ stat.attempt_count }}</td>
+                                    <td>
+                                        {% if stat.avg_score is not none and stat.avg_score|string != 'nan' and stat.avg_score > 0 %}
+                                            <span class="badge bg-{{ 'success' if stat.avg_score >= 70 else 'warning' if stat.avg_score >= 50 else 'danger' }}">
+                                                {{ stat.avg_score|round(2) }}%
+                                            </span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">N/A</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if stat.quiz_count is not none and stat.quiz_count|string != 'nan' and stat.quiz_count > 0 %}
+                                            {% set engagement = (stat.attempt_count / stat.quiz_count)|round(1) %}
+                                            <div class="d-flex align-items-center">
+                                                <span class="me-2">{{ engagement }} per quiz</span>
+                                                <div class="progress flex-grow-1" style="height: 8px;">
+                                                    <div class="progress-bar bg-info" role="progressbar" 
+                                                        
+                                                        aria-valuenow="{{ engagement }}" 
+                                                        aria-valuemin="0" 
+                                                        aria-valuemax="10">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {% else %}
+                                            <span class="text-muted">No quizzes</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        $('#statsTable').DataTable({
+            order: [[3, 'desc']], // Sort by average score by default
+            responsive: true
+        });
+    });
+</script>
+{% endblock %}
