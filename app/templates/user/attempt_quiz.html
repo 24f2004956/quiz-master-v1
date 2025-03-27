@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+
+{% block title %}Attempt Quiz{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h2 class="h4 m-0 font-weight-bold">{{ quiz.chapter.name if quiz.chapter else 'Unknown' }} Quiz</h2>
+            <div class="d-flex align-items-center">
+                <span class="badge bg-light text-primary me-3">{{ quiz.questions|length }} Questions</span>
+                <div id="timer" class="badge bg-danger text-white"></div>
+            </div>
+        </div>
+        
+        <div class="card-body">
+            <div class="quiz-info mb-4 p-3 bg-light rounded">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p class="mb-2"><i class="fas fa-calendar-alt me-2"></i><strong>Date:</strong> {{ quiz.date_of_quiz }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="mb-2"><i class="fas fa-clock me-2"></i><strong>Duration:</strong> {{ quiz.time_duration }} minutes</p>
+                    </div>
+                </div>
+            </div>
+
+            <form id="quizForm" method="POST" action="{{ url_for('quiz.submit_quiz', quiz_id=quiz.id) }}">
+                {% for question in questions %}
+                <div class="question-container card mb-4 shadow-sm">
+                    <div class="card-header bg-light">
+                        <h3 class="h5 m-0">Question {{ loop.index }}: {{ question.question_statement }}</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="options">
+                            {% for i in range(1, 5) %}
+                            {% set option_field = 'option' ~ i %}
+                            {% if question[option_field] %}
+                            <div class="option form-check mb-3">
+                                <input class="form-check-input" type="radio" id="q{{ question.id }}_{{ i }}" 
+                                       name="question_{{ question.id }}" 
+                                       value="{{ i }}" required>
+                                <label class="form-check-label" for="q{{ question.id }}_{{ i }}">
+                                    {{ question[option_field] }}
+                                </label>
+                            </div>
+                            {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+
+                <div class="button-container d-flex justify-content-between mt-4">
+                    <a href="{{ url_for('user.dashboard') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-paper-plane me-2"></i>Submit Quiz
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!--Java script time and optimised version of it ( just for display)-->
+
+<script> 
+document.addEventListener('DOMContentLoaded', function() {
+    const quizForm = document.getElementById('quizForm');
+    const timerDisplay = document.getElementById('timer');
+    
+    // Key for local storage to track quiz timing
+    const STORAGE_KEY = `quiz_timer_${window.location.pathname}`;
+    
+    // Get quiz duration and handle timing
+    class QuizTimer {
+        constructor(duration) {
+            this.totalDuration = duration * 60; // Convert minutes to seconds
+            this.startTime = this.getSavedTime() || Date.now();
+            this.timerInterval = null;
+        }
+        
+        // Retrieve saved time from local storage
+        getSavedTime() {
+            try {
+                const savedData = localStorage.getItem(STORAGE_KEY);
+                return savedData ? parseInt(savedData) : null;
+            } catch (error) {
+                console.error('Error accessing localStorage:', error);
+                return null;
+            }
+        }
+        
+        // Save start time to local storage
+        saveTime() {
+            try {
+                localStorage.setItem(STORAGE_KEY, this.startTime.toString());
+            } catch (error) {
+                console.error('Error saving to localStorage:', error);
+            }
+        }
+        
+        // Calculate remaining time
+        getRemainingTime() {
+            const elapsedTime = Math.floor((Date.now() - this.startTime) / 1000);
+            return Math.max(this.totalDuration - elapsedTime, 0);
+        }
+        
+        // Format time as MM:SS
+        formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = seconds % 60;
+            return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+        }
+        
+        // Start the timer
+        start(onTimeUp, onUpdate) {
+            this.saveTime();
+            
+            this.timerInterval = setInterval(() => {
+                const timeRemaining = this.getRemainingTime();
+                
+                if (timeRemaining <= 0) {
+                    this.stop();
+                    onTimeUp();
+                } else {
+                    onUpdate(this.formatTime(timeRemaining));
+                }
+            }, 1000);
+        }
+        
+        // Stop the timer
+        stop() {
+            if (this.timerInterval) {
+                clearInterval(this.timerInterval);
+            }
+            
+            // Optional: Clear local storage
+            try {
+                localStorage.removeItem(STORAGE_KEY);
+            } catch (error) {
+                console.error('Error clearing localStorage:', error);
+            }
+        }
+    }
+    
+    // Initialize timer
+    const quizDuration = parseInt(timerDisplay.dataset.duration || '{{ quiz.time_duration }}');
+    const timer = new QuizTimer(quizDuration);
+    
+    // Timer update and time-up handlers
+    timer.start(
+        // Time-up handler
+        () => {
+            timerDisplay.textContent = '00:00';
+            timerDisplay.classList.add('text-danger');
+            
+            const submitConfirmation = confirm('Quiz time has ended. Do you want to submit your answers?');
+            if (submitConfirmation) {
+                quizForm.submit();
+            }
+        },
+        // Update handler
+        (formattedTime) => {
+            timerDisplay.textContent = formattedTime;
+            
+            // Optional: Change color as time runs low
+            if (timer.getRemainingTime() <= 60) {
+                timerDisplay.classList.add('text-warning');
+            }
+        }
+    );
+    
+    // Prevent form submission if time has expired
+    quizForm.addEventListener('submit', function(event) {
+        if (timer.getRemainingTime() <= 0) {
+            event.preventDefault();
+            alert('Quiz time has expired. Your answers cannot be submitted.');
+        }
+    });
+    
+    // Handle page unload to persist timer state
+    window.addEventListener('beforeunload', () => {
+        // Optional cleanup if needed
+        timer.stop();
+    });
+});
+</script>
+{% endblock %}
