@@ -1,0 +1,345 @@
+{% extends 'base.html' %}
+{% block content %}
+<body>
+  
+    <!-- Topbar -->
+    <nav class="topbar navbar navbar-expand navbar-light bg-white">
+        <div class="container-fluid">
+            <button class="btn btn-link d-md-none" id="sidebarToggleTop">
+                <i class="fa fa-bars"></i>
+            </button>
+            
+            <!-- Topbar Search -->
+            <form class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
+                <div class="input-group">
+                    <input type="text" class="form-control bg-light border-0 small" placeholder="Search for..." aria-label="Search" aria-describedby="basic-addon2">
+                    <div class="input-group-append">
+                        <button class="btn btn-primary" type="button">
+                            <i class="fas fa-search fa-sm"></i>
+                        </button>
+                    </div>
+                </div>
+            </form>
+            
+            <!-- Topbar Navbar -->
+            <ul class="navbar-nav ms-auto">
+                <div class="topbar-divider d-none d-sm-block"></div>
+                
+                <!-- Nav Item - User Information -->
+                <li class="nav-item dropdown no-arrow">
+                    <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <span class="mr-2 d-none d-lg-inline text-gray-600 small">{{ current_user.full_name }}</span>
+                        <i class="fas fa-user-circle fa-2x"></i>
+                    </a>
+                    <!-- Dropdown - User Information -->
+                    <div class="dropdown-menu dropdown-menu-end shadow animated--grow-in" aria-labelledby="userDropdown">
+                        <a class="dropdown-item" href="#">
+                            <i class="fas fa-user fa-sm fa-fw me-2 text-gray-400"></i>
+                            Profile
+                        </a>
+                        <a class="dropdown-item" href="#">
+                            <i class="fas fa-cogs fa-sm fa-fw me-2 text-gray-400"></i>
+                            Settings
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="{{ url_for('auth.logout') }}">
+                            <i class="fas fa-sign-out-alt fa-sm fa-fw me-2 text-gray-400"></i>
+                            Logout
+                        </a>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Content Wrapper -->
+    <div class="content-wrapper">
+        <div class="main-content">
+            <!-- Page Heading -->
+            <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                <h1 class="h3 mb-0 page-title">Admin Dashboard</h1>
+                <a href="{{ url_for('user.summary') }}" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
+                    <i class="fas fa-download fa-sm text-white-50"></i> Generate Report
+                </a>
+            </div>
+
+            <!-- Content Row -->
+            <div class="row">
+                <!-- Subjects Card -->
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="stats-card stats-card-primary">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Subjects</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ subjects|length }}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-book fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chapters Card -->
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="stats-card stats-card-success">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Chapters</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ chapters|length }}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-bookmark fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quizzes Card -->
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="stats-card stats-card-warning">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Quizzes</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ quizzes|length }}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-question-circle fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Users Card -->
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="stats-card stats-card-danger">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Users</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ users|length }}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-users fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content Row -->
+            <div class="row">
+                <!-- Subjects Table -->
+                <div class="col-lg-6 mb-4">
+                    <div class="card shadow">
+                        <div class="card-header py-3">
+                            <h6 class="card-title m-0 font-weight-bold text-white">Subjects</h6>
+                            <a href="{{ url_for('admin.add_subject') }}" class="btn btn-primary btn-sm">
+                                <i class="fas fa-plus"></i> Add Subject
+                            </a>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-bordered" width="100%" cellspacing="0">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Name</th>
+                                            <th>Chapters</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for subject in subjects %}
+                                        <tr>
+                                            <td>{{ subject.id }}</td>
+                                            <td>{{ subject.name }}</td>
+                                            <td>{{ subject.chapters|length }}</td>
+                                            <td>
+                                                <a href="{{ url_for('admin.edit_subject', subject_id=subject.id) }}" class="btn btn-primary btn-sm">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <form action="{{ url_for('admin.delete_subject', subject_id=subject.id) }}" method="POST" style="display:inline;">
+                                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete subject \'{{ subject.name }}\'? This will also delete all associated chapters and quizzes.');">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chapters Table -->
+                <div class="col-lg-6 mb-4">
+                    <div class="card shadow">
+                        <div class="card-header py-3">
+                            <h6 class="card-title m-0 font-weight-bold text-white">Chapters</h6>
+                            <a href="{{ url_for('admin.add_chapter') }}" class="btn btn-success btn-sm">
+                                <i class="fas fa-plus"></i> Add Chapter
+                            </a>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-bordered" width="100%" cellspacing="0">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Name</th>
+                                            <th>Subject</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for chapter in chapters %}
+                                        <tr>
+                                            <td>{{ chapter.id }}</td>
+                                            <td>{{ chapter.name }}</td>
+                                            <td>{{ chapter.subject.name }}</td>
+                                            <td>
+                                                <a href="{{ url_for('admin.edit_chapter', chapter_id=chapter.id) }}" class="btn btn-primary btn-sm">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <form action="{{ url_for('admin.delete_chapter', chapter_id=chapter.id) }}" method="POST" style="display:inline;">
+                                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete chapter \'{{ chapter.name }}\'? This will also delete all associated quizzes.');">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content Row -->
+            <div class="row">
+                <!-- Quizzes Table -->
+                <div class="col-lg-12 mb-4">
+                    <div class="card shadow">
+                        <div class="card-header py-3">
+                            <h6 class="card-title m-0 font-weight-bold text-warning">Quizzes</h6>
+                            <a href="{{ url_for('admin.add_quiz') }}" class="btn btn-warning btn-sm">
+                                <i class="fas fa-plus"></i> Add Quiz
+                            </a>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-bordered" width="100%" cellspacing="0">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Chapter</th>
+                                            <th>Date</th>
+                                            <th>Duration</th>
+                                            <th>Questions</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for quiz in quizzes %}
+                                        <tr>
+                                            <td>{{ quiz.id }}</td>
+                                            <td>{{ quiz.chapter.name }}</td>
+                                            <td>{{ quiz.date_of_quiz }}</td>
+                                            <td>{{ quiz.time_duration }} min</td>
+                                            <td>{{ quiz.questions|length }}</td>
+                                            <td>
+                                                <a href="{{ url_for('admin.edit_quiz', quiz_id=quiz.id) }}" class="btn btn-primary btn-sm">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <a href="{{ url_for('admin.add_question', quiz_id=quiz.id) }}" class="btn btn-info btn-sm">
+                                                    <i class="fas fa-plus"></i> Q
+                                                </a>
+                                                <form action="{{ url_for('admin.delete_quiz', quiz_id=quiz.id) }}" method="POST" style="display:inline;">
+                                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this quiz? This will also delete all associated questions and scores.');">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content Row -->
+            <div class="row">
+                <!-- Users Table -->
+                <div class="col-lg-12 mb-4">
+                    <div class="card shadow">
+                        <div class="card-header py-3">
+                            <h6 class="card-title m-0 font-weight-bold text-white">Users</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-bordered" width="100%" cellspacing="0">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Full Name</th>
+                                            <th>Email</th>
+                                            <th>Qualification</th>
+                                            <th>Role</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for user in users %}
+                                        <tr>
+                                            <td>{{ user.id }}</td>
+                                            <td>{{ user.full_name }}</td>
+                                            <td>{{ user.email }}</td>
+                                            <td>{{ user.qualification }}</td>
+                                            <td>
+                                                <span class="badge {% if user.role == 'admin' %}bg-danger{% else %}bg-primary{% endif %}">
+                                                    {{ user.role }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                {% if user.role != 'admin' %}
+                                                    <a href="{{ url_for('admin.edit_user', user_id=user.id) }}" class="btn btn-warning btn-sm">
+                                                        <i class="fas fa-edit"></i> Edit
+                                                    </a>
+                                                    
+                                                    <form action="{{ url_for('admin.delete_user', user_id=user.id) }}" method="POST" style="display:inline;">
+                                                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this user?');">
+                                                            <i class="fas fa-trash"></i> Delete
+                                                        </button>
+                                                    </form>
+                                                {% else %}
+                                                    <span class="text-muted">I AM THE ONE WHO TAKES ACTIONS</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- AOS Animation Library -->
+    <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+    <script>
+        AOS.init();
+    </script>
+</body>
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Add Chapter</h2>
+<form method="POST">
+    <label>Chapter Name:</label>
+    <input type="text" name="name" required>
+    
+    <label>Description:</label>
+    <textarea name="description"></textarea>
+
+    <label>Select Subject:</label>
+    <select name="subject_id">
+        {% for subject in subjects %}
+        <option value="{{ subject.id }}">{{ subject.name }}</option>
+        {% endfor %}
+    </select>
+
+    <button type="submit">Add Chapter</button>
+</form>
+<a href="{{ url_for('user.dashboard') }}">Back to Dashboard</a>
+{% endblock %}
