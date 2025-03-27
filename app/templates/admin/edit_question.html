@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block content %}
+<body>
+    <div class="container mt-5">
+        <h2>Edit Question</h2>
+        <form method="POST">
+            <div class="mb-3">
+                <label class="form-label">Question Statement:</label>
+                <input type="text" class="form-control" name="question_statement" value="{{ question.question_statement }}" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Option 1:</label>
+                <input type="text" class="form-control" name="option1" value="{{ question.option1 }}" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Option 2:</label>
+                <input type="text" class="form-control" name="option2" value="{{ question.option2 }}" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Option 3:</label>
+                <input type="text" class="form-control" name="option3" value="{{ question.option3 }}" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Option 4:</label>
+                <input type="text" class="form-control" name="option4" value="{{ question.option4 }}" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Correct Option (1-4):</label>
+                <input type="number" class="form-control" name="correct_option" value="{{ question.correct_option }}" min="1" max="4" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Update Question</button>
+            <a href="{{ url_for('admin.edit_quiz', quiz_id=question.quiz_id) }}" class="btn btn-secondary">Back</a>
+        </form>
+    </div>
+</body>
+{% endblock %}
